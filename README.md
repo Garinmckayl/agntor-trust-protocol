@@ -10,7 +10,7 @@
 
 | | Link |
 |---|---|
-| **Web Dashboard** | [agntorshield.vercel.app](https://agntorshield.vercel.app) _(or open `web/index.html` locally)_ |
+| **Web Dashboard** | [garinmckayl.github.io/agntor-trust-protocol](https://garinmckayl.github.io/agntor-trust-protocol) _(or open `docs/index.html` locally)_ |
 | **Contract (BSC Testnet)** | [`0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331`](https://testnet.bscscan.com/address/0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331) |
 | **Deploy Tx** | [BscScan](https://testnet.bscscan.com/address/0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331) |
 | **Agent Registration Tx** | [`0xb41997...`](https://testnet.bscscan.com/tx/0xb41997a284c1eb84541a4b81de97f03a8bf0a730d8c3463835cb149da55ef77a) |
@@ -113,7 +113,7 @@ npx ts-node src/cli.ts demo --network bsc-testnet
 
 ```bash
 # Open locally
-open web/index.html
+open docs/index.html
 
 # Features:
 # - Live protocol stats from BSC Testnet
@@ -205,8 +205,8 @@ npx ts-node src/cli.ts demo
 │   └── AgntorTrustProtocol.test.ts  # 25 tests
 ├── src/
 │   └── cli.ts                       # CLI (10 commands, bridges off-chain + onchain)
-├── web/
-│   └── index.html                   # Interactive web dashboard
+├── docs/
+│   └── index.html                   # Interactive web dashboard (GitHub Pages)
 ├── demos/
 │   ├── test-suite.cast              # asciinema: test suite recording
 │   ├── compile.cast                 # asciinema: compilation recording
