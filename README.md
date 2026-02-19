@@ -209,6 +209,7 @@ npx ts-node src/cli.ts demo
 ├── docs/
 │   └── index.html                   # Interactive web dashboard (GitHub Pages)
 ├── demos/
+│   ├── full-demo.cast               # asciinema: full end-to-end demo recording
 │   ├── test-suite.cast              # asciinema: test suite recording
 │   ├── compile.cast                 # asciinema: compilation recording
 │   └── cli-help.cast               # asciinema: CLI commands recording
