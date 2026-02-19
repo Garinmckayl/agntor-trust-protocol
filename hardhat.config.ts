@@ -26,7 +26,7 @@ const config: HardhatUserConfig = {
       url: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
       chainId: 97,
       accounts: [PRIVATE_KEY],
-      gasPrice: 3000000000, // 3 gwei
+      gasPrice: 1000000000, // 1 gwei
     },
     // BSC Mainnet
     bsc: {
