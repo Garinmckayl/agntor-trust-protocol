@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgntorShield - Onchain Trust Layer for AI Agent Economies on BNB Chain</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;--bg4:#232d42;
+    --cyan:#00e5ff;--green:#39ff14;--yellow:#ffe066;--red:#ff4d6a;
+    --text:#e0e6f0;--text2:#8892a8;--border:#1e293b;
+    --radius:12px;--glow:0 0 20px rgba(0,229,255,.15);
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+  a{color:var(--cyan);text-decoration:none;transition:opacity .2s}
+  a:hover{opacity:.8}
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+
+  /* Utility */
+  .container{max-width:1100px;margin:0 auto;padding:0 24px}
+  .section{padding:80px 0}
+  .section-title{font-size:1.8rem;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .section-sub{color:var(--text2);margin-bottom:40px;font-size:1.05rem}
+  .badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;border:1px solid var(--border);background:var(--bg3)}
+  .badge.cyan{border-color:rgba(0,229,255,.3);color:var(--cyan)}
+  .badge.green{border-color:rgba(57,255,20,.3);color:var(--green)}
+  .badge.yellow{border-color:rgba(255,224,102,.3);color:var(--yellow)}
+
+  /* Animations */
+  .fade-in{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+  .fade-in.visible{opacity:1;transform:translateY(0)}
+
+  /* Hackathon badge */
+  .hackathon-banner{
+    text-align:center;padding:10px 16px;
+    background:linear-gradient(90deg,rgba(0,229,255,.08),rgba(57,255,20,.08),rgba(0,229,255,.08));
+    border-bottom:1px solid var(--border);font-size:.82rem;color:var(--text2);
+  }
+  .hackathon-banner strong{color:var(--green)}
+  .hackathon-banner .openclaw{color:var(--cyan)}
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,14,26,.85);backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);padding:14px 0;
+  }
+  header .container{display:flex;align-items:center;justify-content:space-between}
+  .logo{font-size:1.25rem;font-weight:800;letter-spacing:-.5px}
+  .logo span{color:var(--cyan)}
+  nav{display:flex;gap:24px;font-size:.88rem}
+  nav a{color:var(--text2);transition:color .2s}
+  nav a:hover{color:var(--cyan)}
+  .nav-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
+
+  /* Hero */
+  .hero{
+    padding:100px 0 80px;text-align:center;
+    background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,.06) 0%,transparent 70%);
+    position:relative;
+  }
+  .hero::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:600px;height:600px;
+    background:radial-gradient(circle,rgba(0,229,255,.04) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .hero h1{font-size:clamp(2.4rem,5vw,3.8rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:16px}
+  .hero h1 .shield{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero .tagline{font-size:clamp(1rem,2vw,1.25rem);color:var(--text2);max-width:620px;margin:0 auto 28px}
+  .contract-link{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 20px;border-radius:8px;
+    background:var(--bg3);border:1px solid var(--border);
+    font-family:'Courier New',monospace;font-size:.82rem;color:var(--text2);
+    transition:border-color .2s,box-shadow .2s;
+  }
+  .contract-link:hover{border-color:var(--cyan);box-shadow:var(--glow);color:var(--text)}
+  .contract-link .label{color:var(--cyan);font-family:'Segoe UI',sans-serif;font-weight:600}
+  .hero-buttons{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:12px 28px;border-radius:8px;font-weight:600;font-size:.92rem;
+    border:none;cursor:pointer;transition:all .2s;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--cyan),#00b4d8);color:#0a0e1a}
+  .btn-primary:hover{box-shadow:0 0 24px rgba(0,229,255,.3);transform:translateY(-1px)}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+  .btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+
+  /* Cards */
+  .card{
+    background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+    padding:28px;transition:border-color .3s,box-shadow .3s;
+  }
+  .card:hover{border-color:rgba(0,229,255,.25);box-shadow:var(--glow)}
+  .card h3{font-size:1.1rem;margin-bottom:8px}
+  .card p{color:var(--text2);font-size:.92rem}
+  .card-icon{
+    width:44px;height:44px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;margin-bottom:14px;
+    background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.15);
+  }
+
+  /* Dashboard */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+  .stat-card{
+    background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;text-align:center;
+  }
+  .stat-card .stat-value{font-size:1.8rem;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums}
+  .stat-card .stat-value.loading{font-size:1rem;color:var(--text2);animation:pulse 1.5s ease infinite}
+  .stat-card .stat-label{font-size:.8rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+  .admin-bar{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 20px;background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius);font-family:'Courier New',monospace;font-size:.82rem;
+    color:var(--text2);flex-wrap:wrap;
+  }
+  .admin-bar .label{color:var(--green);font-family:'Segoe UI',sans-serif;font-weight:600;font-size:.85rem}
+  .refresh-row{display:flex;justify-content:flex-end;margin-bottom:16px}
+  .btn-refresh{
+    padding:8px 18px;border-radius:6px;font-size:.82rem;font-weight:600;
+    background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;
+    transition:all .2s;
+  }
+  .btn-refresh:hover{border-color:var(--cyan);color:var(--cyan)}
+  .btn-refresh.spinning .icon{animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* Lookup sections */
+  .lookup-section{margin-top:16px}
+  .input-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .input-row input{
+    flex:1;min-width:200px;padding:12px 16px;border-radius:8px;
+    background:var(--bg3);border:1px solid var(--border);color:var(--text);
+    font-size:.92rem;outline:none;transition:border-color .2s;
+  }
+  .input-row input:focus{border-color:var(--cyan)}
+  .input-row input::placeholder{color:var(--text2)}
+  .result-box{
+    background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;min-height:60px;font-size:.88rem;
+  }
+  .result-box .empty{color:var(--text2);font-style:italic}
+  .result-box .error{color:var(--red)}
+  .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .result-item{padding:10px 14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)}
+  .result-item .r-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:2px}
+  .result-item .r-value{font-size:.92rem;word-break:break-all}
+  .result-item .r-value.active{color:var(--green)}
+  .result-item .r-value.inactive{color:var(--red)}
+
+  .verify-result{display:flex;align-items:center;gap:12px;padding:16px;border-radius:8px}
+  .verify-result.valid{background:rgba(57,255,20,.08);border:1px solid rgba(57,255,20,.2)}
+  .verify-result.invalid{background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.2)}
+  .verify-result .v-icon{font-size:1.5rem}
+  .verify-result .v-text{font-weight:600}
+  .verify-result.valid .v-text{color:var(--green)}
+  .verify-result.invalid .v-text{color:var(--red)}
+  .verify-result .v-reason{color:var(--text2);font-size:.88rem}
+
+  /* How it works */
+  .hiw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+  .hiw-card{position:relative;overflow:hidden}
+  .hiw-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--cyan),var(--green));
+    transform:scaleX(0);transform-origin:left;transition:transform .4s ease;
+  }
+  .hiw-card:hover::before{transform:scaleX(1)}
+  .hiw-step{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);
+    font-size:.78rem;font-weight:700;color:var(--cyan);margin-bottom:12px;
+  }
+
+  /* Architecture */
+  .arch-container{
+    display:flex;flex-direction:column;gap:0;
+    background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+    padding:32px;overflow-x:auto;
+  }
+  .arch-layer{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;padding:16px 0}
+  .arch-divider{
+    text-align:center;padding:12px 0;position:relative;
+    color:var(--text2);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;
+  }
+  .arch-divider::before,.arch-divider::after{
+    content:'';position:absolute;top:50%;height:1px;width:calc(50% - 80px);
+    background:linear-gradient(90deg,transparent,var(--border));
+  }
+  .arch-divider::before{left:0;background:linear-gradient(90deg,transparent,var(--border))}
+  .arch-divider::after{right:0;background:linear-gradient(270deg,transparent,var(--border))}
+  .arch-box{
+    padding:12px 20px;border-radius:8px;font-size:.84rem;font-weight:600;
+    text-align:center;min-width:140px;
+    border:1px solid var(--border);background:var(--bg3);
+    transition:border-color .3s,transform .3s;
+  }
+  .arch-box:hover{transform:translateY(-2px)}
+  .arch-box.sdk{border-color:rgba(0,229,255,.3);color:var(--cyan)}
+  .arch-box.api{border-color:rgba(255,224,102,.3);color:var(--yellow)}
+  .arch-box.chain{border-color:rgba(57,255,20,.3);color:var(--green)}
+  .arch-box small{display:block;font-weight:400;font-size:.72rem;color:var(--text2);margin-top:2px}
+  .arch-arrow{color:var(--text2);font-size:1.2rem}
+  .arch-arrow.down{display:block;text-align:center;padding:4px 0;color:var(--text2);font-size:1rem}
+
+  /* Tech stack */
+  .tech-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .tech-badge{
+    padding:10px 20px;border-radius:8px;font-size:.84rem;font-weight:600;
+    background:var(--bg3);border:1px solid var(--border);
+    transition:border-color .3s,transform .3s;
+  }
+  .tech-badge:hover{border-color:rgba(0,229,255,.3);transform:translateY(-2px)}
+
+  /* Footer */
+  footer{
+    padding:40px 0;border-top:1px solid var(--border);
+    background:var(--bg);
+  }
+  .footer-inner{display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;align-items:flex-start}
+  .footer-col h4{font-size:.88rem;color:var(--text);margin-bottom:10px}
+  .footer-col p,.footer-col a{font-size:.84rem;color:var(--text2);display:block;margin-bottom:6px}
+  .footer-bottom{margin-top:28px;padding-top:20px;border-top:1px solid var(--border);text-align:center;font-size:.78rem;color:var(--text2)}
+
+  /* Responsive */
+  @media(max-width:768px){
+    nav{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:var(--bg2);padding:16px 24px;border-bottom:1px solid var(--border)}
+    nav.open{display:flex}
+    .nav-toggle{display:block}
+    .hero{padding:70px 0 50px}
+    .section{padding:50px 0}
+    .arch-layer{flex-direction:column;gap:8px}
+    .arch-arrow{transform:rotate(90deg)}
+    .contract-link{font-size:.7rem;padding:8px 14px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Hackathon Banner -->
+<div class="hackathon-banner">
+  Built for <strong>Good Vibes Only</strong>: <span class="openclaw">OpenClaw Edition</span> Hackathon on BNB Chain
+</div>
+
+<!-- Header -->
+<header>
+  <div class="container">
+    <div class="logo">Agntor<span>Shield</span></div>
+    <button class="nav-toggle" onclick="document.querySelector('nav').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+    <nav>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#lookup">Agent Lookup</a>
+      <a href="#verify">Verify Ticket</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#architecture">Architecture</a>
+      <a href="https://github.com/Garinmckayl/agntor-trust-protocol" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container fade-in">
+    <h1>Agntor<span class="shield">Shield</span></h1>
+    <p class="tagline">Onchain Trust Layer for AI Agent Economies on BNB Chain</p>
+    <a class="contract-link" href="https://testnet.bscscan.com/address/0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331" target="_blank" rel="noopener">
+      <span class="label">Contract</span>
+      0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331
+      <span>&#8599;</span>
+    </a>
+    <div class="badge-row" style="justify-content:center;margin-top:16px">
+      <span class="badge cyan">BSC Testnet</span>
+      <span class="badge green">AgntorTrustProtocol</span>
+      <span class="badge yellow">Chain ID 97</span>
+    </div>
+    <div class="hero-buttons">
+      <a class="btn btn-primary" href="#dashboard">View Live Dashboard</a>
+      <a class="btn btn-outline" href="https://github.com/Garinmckayl/agntor-trust-protocol" target="_blank" rel="noopener">Source Code &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- Live Contract Dashboard -->
+<section class="section" id="dashboard">
+  <div class="container">
+    <div class="fade-in">
+      <h2 class="section-title">Live Contract Dashboard</h2>
+      <p class="section-sub">Real-time data from the AgntorTrustProtocol contract on BSC Testnet</p>
+    </div>
+    <div class="fade-in">
+      <div class="refresh-row">
+        <button class="btn-refresh" id="refreshBtn" onclick="loadDashboard()">
+          <span class="icon" style="display:inline-block">&#x21bb;</span> Refresh
+        </button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value loading" id="stat-agents">--</div>
+          <div class="stat-label">Total Agents</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value loading" id="stat-tickets">--</div>
+          <div class="stat-label">Total Tickets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value loading" id="stat-escrows">--</div>
+          <div class="stat-label">Total Escrows</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value loading" id="stat-volume">--</div>
+          <div class="stat-label">Escrow Volume (BNB)</div>
+        </div>
+      </div>
+      <div class="admin-bar">
+        <span class="label">Admin</span>
+        <span id="admin-address" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">Loading...</span>
+        <a id="admin-link" href="#" target="_blank" rel="noopener" style="font-size:.78rem">View on BscScan &#8599;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Agent Lookup -->
+<section class="section" id="lookup" style="background:var(--bg2)">
+  <div class="container">
+    <div class="fade-in">
+      <h2 class="section-title">Agent Lookup</h2>
+      <p class="section-sub">Query any registered agent's onchain profile by their Agent ID</p>
+    </div>
+    <div class="fade-in lookup-section">
+      <div class="input-row">
+        <input type="text" id="agentIdInput" placeholder='Enter Agent ID (e.g. "openclaw-agent-001")'>
+        <button class="btn btn-primary" onclick="lookupAgent()">Lookup</button>
+      </div>
+      <div class="result-box" id="agentResult">
+        <span class="empty">Enter an agent ID above and click Lookup to query its onchain profile.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ticket Verification -->
+<section class="section" id="verify">
+  <div class="container">
+    <div class="fade-in">
+      <h2 class="section-title">Ticket Verification</h2>
+      <p class="section-sub">Verify an onchain-anchored JWT audit ticket by its hash</p>
+    </div>
+    <div class="fade-in lookup-section">
+      <div class="input-row">
+        <input type="text" id="ticketHashInput" placeholder="Enter ticket hash (0x...)">
+        <button class="btn btn-primary" onclick="verifyTicket()">Verify</button>
+      </div>
+      <div class="result-box" id="ticketResult">
+        <span class="empty">Enter a ticket hash above and click Verify to check its onchain validity.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="section" id="how-it-works" style="background:var(--bg2)">
+  <div class="container">
+    <div class="fade-in">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">Three pillars of trust for autonomous AI agent economies</p>
+    </div>
+    <div class="hiw-grid fade-in">
+      <div class="card hiw-card">
+        <div class="hiw-step">1</div>
+        <div class="card-icon">&#128737;</div>
+        <h3>Agent Registry</h3>
+        <p>Register AI agents onchain with configurable audit levels, operational constraints, value limits, and kill switches. Every agent gets a verifiable identity tied to its owner's wallet.</p>
+        <div class="badge-row">
+          <span class="badge cyan">Audit Levels</span>
+          <span class="badge green">Kill Switch</span>
+          <span class="badge yellow">Value Limits</span>
+        </div>
+      </div>
+      <div class="card hiw-card">
+        <div class="hiw-step">2</div>
+        <div class="card-icon">&#128274;</div>
+        <h3>Ticket Anchoring</h3>
+        <p>Anchor JWT audit tickets onchain by their cryptographic hash. Any party can independently verify an agent's authorization ticket without trusting a central authority.</p>
+        <div class="badge-row">
+          <span class="badge cyan">JWT Hash</span>
+          <span class="badge green">Onchain Proof</span>
+          <span class="badge yellow">x402 Compatible</span>
+        </div>
+      </div>
+      <div class="card hiw-card">
+        <div class="hiw-step">3</div>
+        <div class="card-icon">&#128176;</div>
+        <h3>Settlement Escrow</h3>
+        <p>Risk-gated escrow for agent-to-agent payments. Funds are held onchain and released only when trust conditions are met: audit level, reputation score, and operation value checks.</p>
+        <div class="badge-row">
+          <span class="badge cyan">Risk-Gated</span>
+          <span class="badge green">Auto-Settle</span>
+          <span class="badge yellow">Dispute Flow</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture Diagram -->
+<section class="section" id="architecture">
+  <div class="container">
+    <div class="fade-in">
+      <h2 class="section-title">Architecture</h2>
+      <p class="section-sub">Off-chain SDK to onchain protocol flow</p>
+    </div>
+    <div class="arch-container fade-in">
+      <!-- Off-chain layer -->
+      <div style="text-align:center;font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:8px">Off-chain Layer</div>
+      <div class="arch-layer">
+        <div class="arch-box sdk">
+          AI Agent App
+          <small>Your agent logic</small>
+        </div>
+        <div class="arch-arrow">&rarr;</div>
+        <div class="arch-box sdk">
+          @agntor/sdk
+          <small>TypeScript SDK</small>
+        </div>
+        <div class="arch-arrow">&rarr;</div>
+        <div class="arch-box api">
+          JWT Engine
+          <small>Ticket signing</small>
+        </div>
+      </div>
+
+      <div class="arch-arrow down">&#8595; &nbsp; ethers.js / JSON-RPC &nbsp; &#8595;</div>
+
+      <div class="arch-divider">BNB Chain (BSC Testnet)</div>
+
+      <!-- On-chain layer -->
+      <div class="arch-layer">
+        <div class="arch-box chain">
+          AgntorTrustProtocol
+          <small>Core Contract</small>
+        </div>
+      </div>
+      <div class="arch-arrow down">&#8595;</div>
+      <div class="arch-layer">
+        <div class="arch-box chain">
+          Agent Registry
+          <small>registerAgent()</small>
+        </div>
+        <div class="arch-box chain">
+          Ticket Store
+          <small>anchorTicket()</small>
+        </div>
+        <div class="arch-box chain">
+          Escrow Engine
+          <small>createEscrow()</small>
+        </div>
+      </div>
+      <div class="arch-arrow down">&#8595;</div>
+      <div class="arch-layer">
+        <div class="arch-box chain" style="min-width:280px">
+          verifyAgentTrust() &bull; verifyTicket() &bull; getProtocolStats()
+          <small>Read functions for trust verification</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tech Stack -->
+<section class="section" id="tech" style="background:var(--bg2)">
+  <div class="container" style="text-align:center">
+    <div class="fade-in">
+      <h2 class="section-title">Tech Stack</h2>
+      <p class="section-sub">Built with modern Web3 infrastructure</p>
+    </div>
+    <div class="tech-grid fade-in">
+      <div class="tech-badge">Solidity</div>
+      <div class="tech-badge">Hardhat</div>
+      <div class="tech-badge">BNB Chain</div>
+      <div class="tech-badge">ethers.js v6</div>
+      <div class="tech-badge">TypeScript</div>
+      <div class="tech-badge">@agntor/sdk</div>
+      <div class="tech-badge">JWT / x402</div>
+      <div class="tech-badge">Node.js</div>
+      <div class="tech-badge">OpenAI Agents</div>
+      <div class="tech-badge">BSC Testnet</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>AgntorShield</h4>
+        <p>Onchain Trust Layer for AI Agent Economies on BNB Chain.</p>
+        <p>Contract: <code>AgntorTrustProtocol</code></p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="https://github.com/Garinmckayl/agntor-trust-protocol" target="_blank" rel="noopener">GitHub Repository</a>
+        <a href="https://www.npmjs.com/package/@agntor/sdk" target="_blank" rel="noopener">@agntor/sdk on npm</a>
+        <a href="https://testnet.bscscan.com/address/0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331" target="_blank" rel="noopener">Contract on BscScan</a>
+      </div>
+      <div class="footer-col">
+        <h4>Author</h4>
+        <p>Natnael Getenew Zeleke</p>
+        <a href="https://github.com/Garinmckayl" target="_blank" rel="noopener">@Garinmckayl</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 AgntorShield &mdash; Built for Good Vibes Only: OpenClaw Edition on BNB Chain
+    </div>
+  </div>
+</footer>
+
+<script>
+  // --- Contract config ---
+  const RPC_URL = 'https://data-seed-prebsc-1-s1.bnbchain.org:8545';
+  const CONTRACT = '0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331';
+  const EXPLORER = 'https://testnet.bscscan.com';
+
+  const ABI = [
+    'function admin() view returns (address)',
+    'function getProtocolStats() view returns (uint256 totalAgents, uint256 totalTickets, uint256 totalEscrows, uint256 totalEscrowVolume)',
+    'function agents(string agentId) view returns (address owner, string agentId, uint8 auditLevel, uint256 maxOpValue, uint256 maxOpsPerHour, bool killSwitchActive, bool requiresX402, uint256 reputationScore, uint256 registeredAt, uint256 updatedAt, bool active, bytes32 constraintsHash)',
+    'function verifyAgentTrust(string agentId, uint256 operationValue) view returns (bool trusted, string reason)',
+    'function verifyTicket(bytes32 ticketHash) view returns (bool valid, string reason)',
+    'function isAgentActive(string agentId) view returns (bool)',
+  ];
+
+  let provider, contract;
+
+  function initContract() {
+    provider = new ethers.JsonRpcProvider(RPC_URL, { chainId: 97, name: 'bsc-testnet' });
+    contract = new ethers.Contract(CONTRACT, ABI, provider);
+  }
+
+  // --- Dashboard ---
+  async function loadDashboard() {
+    const btn = document.getElementById('refreshBtn');
+    btn.classList.add('spinning');
+
+    const ids = ['stat-agents', 'stat-tickets', 'stat-escrows', 'stat-volume'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = '--';
+      el.classList.add('loading');
+    });
+    document.getElementById('admin-address').textContent = 'Loading...';
+
+    try {
+      const [stats, adminAddr] = await Promise.all([
+        contract.getProtocolStats(),
+        contract.admin(),
+      ]);
+
+      document.getElementById('stat-agents').textContent = stats.totalAgents.toString();
+      document.getElementById('stat-tickets').textContent = stats.totalTickets.toString();
+      document.getElementById('stat-escrows').textContent = stats.totalEscrows.toString();
+
+      const volumeEth = ethers.formatEther(stats.totalEscrowVolume);
+      document.getElementById('stat-volume').textContent = parseFloat(volumeEth).toFixed(4);
+
+      ids.forEach(id => document.getElementById(id).classList.remove('loading'));
+
+      document.getElementById('admin-address').textContent = adminAddr;
+      const adminLink = document.getElementById('admin-link');
+      adminLink.href = EXPLORER + '/address/' + adminAddr;
+    } catch (err) {
+      console.error('Dashboard error:', err);
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        el.textContent = 'Error';
+        el.classList.remove('loading');
+        el.style.color = 'var(--red)';
+      });
+      document.getElementById('admin-address').textContent = 'Failed to load';
+    }
+
+    btn.classList.remove('spinning');
+  }
+
+  // --- Agent Lookup ---
+  async function lookupAgent() {
+    const agentId = document.getElementById('agentIdInput').value.trim();
+    const resultBox = document.getElementById('agentResult');
+
+    if (!agentId) {
+      resultBox.innerHTML = '<span class="error">Please enter an agent ID.</span>';
+      return;
+    }
+
+    resultBox.innerHTML = '<span class="empty">Loading...</span>';
+
+    try {
+      const agent = await contract.agents(agentId);
+      const isActive = await contract.isAgentActive(agentId);
+
+      const zeroAddr = '0x0000000000000000000000000000000000000000';
+      if (agent.owner === zeroAddr) {
+        resultBox.innerHTML = '<span class="error">No agent found with ID "' + escapeHtml(agentId) + '".</span>';
+        return;
+      }
+
+      const auditLabels = ['None', 'Basic', 'Standard', 'Strict', 'Critical'];
+      const auditLevel = Number(agent.auditLevel);
+      const regDate = agent.registeredAt > 0n
+        ? new Date(Number(agent.registeredAt) * 1000).toLocaleString()
+        : 'N/A';
+      const updDate = agent.updatedAt > 0n
+        ? new Date(Number(agent.updatedAt) * 1000).toLocaleString()
+        : 'N/A';
+
+      resultBox.innerHTML = '<div class="result-grid">'
+        + resultItem('Owner', '<a href="' + EXPLORER + '/address/' + agent.owner + '" target="_blank" rel="noopener">' + agent.owner + '</a>')
+        + resultItem('Agent ID', escapeHtml(agent.agentId))
+        + resultItem('Audit Level', auditLabels[auditLevel] || auditLevel, 'active')
+        + resultItem('Reputation', agent.reputationScore.toString())
+        + resultItem('Max Op Value', ethers.formatEther(agent.maxOpValue) + ' BNB')
+        + resultItem('Max Ops/Hour', agent.maxOpsPerHour.toString())
+        + resultItem('Kill Switch', agent.killSwitchActive ? 'ACTIVE' : 'Inactive', agent.killSwitchActive ? 'inactive' : 'active')
+        + resultItem('Requires x402', agent.requiresX402 ? 'Yes' : 'No')
+        + resultItem('Active', isActive ? 'Yes' : 'No', isActive ? 'active' : 'inactive')
+        + resultItem('Registered', regDate)
+        + resultItem('Updated', updDate)
+        + resultItem('Constraints Hash', agent.constraintsHash)
+        + '</div>';
+    } catch (err) {
+      console.error('Agent lookup error:', err);
+      resultBox.innerHTML = '<span class="error">Error: ' + escapeHtml(err.reason || err.message || 'Unknown error') + '</span>';
+    }
+  }
+
+  // --- Ticket Verification ---
+  async function verifyTicket() {
+    const hash = document.getElementById('ticketHashInput').value.trim();
+    const resultBox = document.getElementById('ticketResult');
+
+    if (!hash) {
+      resultBox.innerHTML = '<span class="error">Please enter a ticket hash.</span>';
+      return;
+    }
+
+    if (!/^0x[a-fA-F0-9]{64}$/.test(hash)) {
+      resultBox.innerHTML = '<span class="error">Invalid hash format. Must be 0x followed by 64 hex characters.</span>';
+      return;
+    }
+
+    resultBox.innerHTML = '<span class="empty">Verifying...</span>';
+
+    try {
+      const result = await contract.verifyTicket(hash);
+      const valid = result.valid;
+      const reason = result.reason;
+
+      resultBox.innerHTML = '<div class="verify-result ' + (valid ? 'valid' : 'invalid') + '">'
+        + '<span class="v-icon">' + (valid ? '&#10003;' : '&#10007;') + '</span>'
+        + '<div><div class="v-text">' + (valid ? 'Valid Ticket' : 'Invalid Ticket') + '</div>'
+        + '<div class="v-reason">' + escapeHtml(reason) + '</div></div>'
+        + '</div>';
+    } catch (err) {
+      console.error('Ticket verify error:', err);
+      resultBox.innerHTML = '<span class="error">Error: ' + escapeHtml(err.reason || err.message || 'Unknown error') + '</span>';
+    }
+  }
+
+  // --- Helpers ---
+  function resultItem(label, value, cls) {
+    return '<div class="result-item"><div class="r-label">' + label + '</div>'
+      + '<div class="r-value' + (cls ? ' ' + cls : '') + '">' + value + '</div></div>';
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = String(str);
+    return d.innerHTML;
+  }
+
+  // --- Scroll animations ---
+  function initScrollAnimations() {
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(function(el) {
+      observer.observe(el);
+    });
+  }
+
+  // --- Enter key support ---
+  document.getElementById('agentIdInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') lookupAgent();
+  });
+  document.getElementById('ticketHashInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') verifyTicket();
+  });
+
+  // --- Init ---
+  initContract();
+  initScrollAnimations();
+  loadDashboard();
+</script>
+</body>
+</html>

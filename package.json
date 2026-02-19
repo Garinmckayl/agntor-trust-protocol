@@ -1,7 +1,7 @@
 {
-  "name": "@agntor/trust-protocol",
+  "name": "@agntor/shield",
   "version": "1.0.0",
-  "description": "Agntor Trust Protocol — Onchain trust layer for autonomous AI agent economies on BNB Chain",
+  "description": "AgntorShield — Onchain trust layer for autonomous AI agent economies on BNB Chain",
   "type": "commonjs",
   "scripts": {
     "compile": "hardhat compile",

@@ -7,7 +7,7 @@ async function main() {
   const balance = await ethers.provider.getBalance(signer.address);
 
   console.log("═══════════════════════════════════════════════════════════");
-  console.log("  AGNTOR TRUST PROTOCOL — ONCHAIN INTERACTION");
+  console.log("  AGNTORSHIELD — ONCHAIN INTERACTION");
   console.log("═══════════════════════════════════════════════════════════");
   console.log(`  Wallet:    ${signer.address}`);
   console.log(`  Balance:   ${ethers.formatEther(balance)} BNB`);

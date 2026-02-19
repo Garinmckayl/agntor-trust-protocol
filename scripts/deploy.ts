@@ -5,7 +5,7 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
 
   console.log("═══════════════════════════════════════════════════════════");
-  console.log("  AGNTOR TRUST PROTOCOL — DEPLOYMENT");
+  console.log("  AGNTORSHIELD — DEPLOYMENT");
   console.log("═══════════════════════════════════════════════════════════");
   console.log(`  Deployer:  ${deployer.address}`);
   console.log(`  Balance:   ${ethers.formatEther(balance)} BNB`);

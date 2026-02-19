@@ -162,8 +162,8 @@ function printTx(network: string, tx: ethers.TransactionResponse) {
 const program = new Command();
 
 program
-  .name("agntor-trust")
-  .description("Agntor Trust Protocol — Onchain trust layer for AI agents on BNB Chain")
+  .name("agntorshield")
+  .description("AgntorShield — Onchain trust layer for AI agents on BNB Chain")
   .version("1.0.0")
   .option("-n, --network <network>", "Network to use", "bsc-testnet");
 

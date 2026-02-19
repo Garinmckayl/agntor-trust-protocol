@@ -1,0 +1,9 @@
+{"version": 2, "width": 80, "height": 24, "timestamp": 1771479260, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "AgntorShield - Smart Contract Compilation"}
+[0.852303, "o", "\u001b[1G"]
+[0.854568, "o", "\u001b[0K⠙"]
+[0.897842, "o", "\u001b[1G"]
+[0.897895, "o", "\u001b[0K"]
+[2.610451, "o", "Nothing to compile\r\nNo need to generate any newer typings."]
+[2.613628, "o", "\r\n"]
+[2.649411, "o", "\u001b[1G\u001b[0K⠙"]
+[2.65952, "o", "\u001b[1G\u001b[0K"]
