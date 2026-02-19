@@ -1,0 +1,51 @@
+{
+  "name": "@agntor/trust-protocol",
+  "version": "1.0.0",
+  "description": "Agntor Trust Protocol — Onchain trust layer for autonomous AI agent economies on BNB Chain",
+  "type": "commonjs",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:bsc-testnet": "hardhat run scripts/deploy.ts --network bscTestnet",
+    "deploy:opbnb-testnet": "hardhat run scripts/deploy.ts --network opbnbTestnet",
+    "deploy:bsc": "hardhat run scripts/deploy.ts --network bsc",
+    "deploy:opbnb": "hardhat run scripts/deploy.ts --network opbnb",
+    "cli": "ts-node src/cli.ts",
+    "build": "hardhat compile && tsc -p tsconfig.cli.json"
+  },
+  "keywords": [
+    "ai-agent",
+    "trust-protocol",
+    "bnb-chain",
+    "openclaw",
+    "security",
+    "escrow",
+    "agent-registry",
+    "x402"
+  ],
+  "author": "Natnael Getenew Zeleke",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
+    "@types/node": "^22.0.0",
+    "hardhat": "^2.22.0",
+    "hardhat-gas-reporter": "^1.0.10",
+    "solidity-coverage": "^0.8.0",
+    "typescript": "^5.7.0",
+    "ts-node": "^10.9.0",
+    "typechain": "^8.3.0"
+  },
+  "dependencies": {
+    "@agntor/sdk": "^0.1.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.0",
+    "ethers": "^6.13.0",
+    "ora": "^5.4.1",
+    "boxen": "^5.1.2"
+  }
+}
