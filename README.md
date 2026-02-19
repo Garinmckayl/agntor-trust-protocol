@@ -10,11 +10,11 @@
 
 | | Link |
 |---|---|
-| **Web Dashboard** | [garinmckayl.github.io/agntor-trust-protocol](https://garinmckayl.github.io/agntor-trust-protocol) _(or open `docs/index.html` locally)_ |
+| **Web Dashboard** | [garinmckayl.github.io/agntorshield](https://garinmckayl.github.io/agntorshield) _(or open `docs/index.html` locally)_ |
 | **Contract (BSC Testnet)** | [`0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331`](https://testnet.bscscan.com/address/0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331) |
 | **Deploy Tx** | [BscScan](https://testnet.bscscan.com/address/0xab7AcBDA37EDff3D3B7F5b8725D55323104c6331) |
 | **Agent Registration Tx** | [`0xb41997...`](https://testnet.bscscan.com/tx/0xb41997a284c1eb84541a4b81de97f03a8bf0a730d8c3463835cb149da55ef77a) |
-| **GitHub Repo** | [github.com/Garinmckayl/agntor-trust-protocol](https://github.com/Garinmckayl/agntor-trust-protocol) |
+| **GitHub Repo** | [github.com/Garinmckayl/agntorshield](https://github.com/Garinmckayl/agntorshield) |
 
 ---
 
@@ -93,8 +93,8 @@ The security analysis happens off-chain (prompt injection detection, secret reda
 ### Install & Run
 
 ```bash
-git clone https://github.com/Garinmckayl/agntor-trust-protocol.git
-cd agntor-trust-protocol
+git clone https://github.com/Garinmckayl/agntorshield.git
+cd agntorshield
 npm install
 cp .env.example .env    # Edit with your private key
 
